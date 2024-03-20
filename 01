@@ -1,0 +1,122 @@
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("Введите арифметическое выражение:");
+            String input = scanner.nextLine();
+            if (input.equalsIgnoreCase("exit")) {
+                System.out.println("Завершение работы.");
+                break;
+            }
+            try {
+                String result = calc(input);
+                System.out.println("Output: " + result);
+            } catch (Exception e) {
+                System.out.println("Output: " + e.getMessage());
+            }
+        }
+        scanner.close();
+    }
+
+    public static String calc(String input) throws Exception {
+        input = input.replaceAll("\\s", "");
+        if (!input.matches("[IVX0-9]+[+\\-*/][IVX0-9]+")) {
+            throw new Exception("Некорректное арифметическое выражение.");
+        }
+        String[] parts = input.split("[+\\-*/]");
+        if (parts.length != 2) {
+            throw new Exception("Некорректное арифметическое выражение.");
+        }
+        int num1, num2;
+        try {
+            if (isRoman(parts[0]) && isRoman(parts[1])) {
+                num1 = romanToArabic(parts[0]);
+                num2 = romanToArabic(parts[1]);
+            } else if (!isRoman(parts[0]) && !isRoman(parts[1])) {
+                num1 = Integer.parseInt(parts[0]);
+                num2 = Integer.parseInt(parts[1]);
+            } else {
+                throw new Exception("Некорректное арифметическое выражение.");
+            }
+        } catch (NumberFormatException e) {
+            throw new Exception("Некорректное арифметическое выражение.");
+        }
+        char operator = input.charAt(parts[0].length());
+        int result;
+        switch (operator) {
+            case '+':
+                result = num1 + num2;
+                break;
+            case '-':
+                result = num1 - num2;
+                break;
+            case '*':
+                result = num1 * num2;
+                break;
+            case '/':
+                if (num2 == 0)
+                    throw new Exception("Деление на ноль.");
+                result = num1 / num2;
+                break;
+            default:
+                throw new Exception("Некорректное арифметическое выражение.");
+        }
+        if (isRoman(parts[0]) && isRoman(parts[1])) {
+            return arabicToRoman(result);
+        } else {
+            return Integer.toString(result);
+        }
+    }
+
+    public static int romanToArabic(String roman) {
+        int result = 0;
+        int prevValue = 0;
+        for (int i = roman.length() - 1; i >= 0; i--) {
+            int value = romanDigitToValue(roman.charAt(i));
+            if (value < prevValue) {
+                result -= value;
+            } else {
+                result += value;
+            }
+            prevValue = value;
+        }
+        return result;
+    }
+
+    public static int romanDigitToValue(char digit) {
+        switch (digit) {
+            case 'I':
+                return 1;
+            case 'V':
+                return 5;
+            case 'X':
+                return 10;
+            default:
+                throw new IllegalArgumentException("Invalid Roman digit: " + digit);
+        }
+    }
+
+    public static String arabicToRoman(int number) {
+        if (number < 1 || number > 3999)
+            throw new IllegalArgumentException("Некорректное арифметическое выражение.");
+        String[] romanNumerals = {"I", "IV", "V", "IX", "X", "XL", "L", "XC", "C", "CD", "D", "CM", "M"};
+        int[] values = {1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000};
+        StringBuilder roman = new StringBuilder();
+
+        int i = 12;
+        while (number > 0) {
+            int div = number / values[i];
+            number %= values[i];
+            while (div-- > 0)
+                roman.append(romanNumerals[i]);
+            i--;
+        }
+        return roman.toString();
+    }
+
+    public static boolean isRoman(String input) {
+        return input.matches("[IVX]+");
+    }
+}
