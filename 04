@@ -1,0 +1,81 @@
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Input:");
+        String input = scanner.nextLine();
+
+        try {
+            String result = evaluateExpression(input);
+            if (result.length() > 40) {
+                result = result.substring(0, 40) + "..."; // Ограничение вывода
+            }
+            System.out.println("Output: " + result);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static String evaluateExpression(String expression) throws Exception {
+        Pattern pattern = Pattern.compile("\"([^\"]{1,10})\"\\s*([+\\-*\\/])\\s*\"?([^\"]{1,10})\"?");
+        Matcher matcher = pattern.matcher(expression);
+
+        if (!matcher.matches()) {
+            throw new Exception("Invalid format.");
+        }
+
+        String firstStr = matcher.group(1); // Первая строка
+        String operation = matcher.group(2); // Оператор
+        String secondStr = matcher.group(3); // Второй операнд (целое число или строка)
+
+        switch (operation) {
+            case "+":
+                return firstStr + secondStr;
+
+            case "-":
+                return firstStr.replace(secondStr, "");
+
+            case "*":
+                int times = parseInteger(secondStr);
+                validateRange(times);
+                return repeatString(firstStr, times);
+
+            case "/":
+                int divisor = parseInteger(secondStr);
+                validateRange(divisor);
+
+                // Сокращение строки в `divisor` раз
+                int segmentLength = firstStr.length() / divisor; // Длина сегмента
+                return firstStr.substring(0, segmentLength); // Возвращаем первую часть
+
+            default:
+                throw new Exception("Unknown operation.");
+        }
+    }
+
+    private static int parseInteger(String value) throws Exception {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new Exception("The operand should be an integer.");
+        }
+    }
+
+    private static void validateRange(int number) throws Exception {
+        if (number < 1 || number > 10) {
+            throw new Exception("The operand should be between 1 and 10.");
+        }
+    }
+
+    private static String repeatString(String input, int times) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            result.append(input);
+        }
+        return result.toString();
+    }
+}
