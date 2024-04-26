@@ -1,6 +1,6 @@
 import java.util.Scanner;
 import java.util.regex.Matcher;// Для работы с регулярными выражениями
-import java.util.regex.Pattern;
+import java.util.regex.Pattern;// Для определения регулярных выражений
 
 public class Main {
     public static void main(String[] args) {
