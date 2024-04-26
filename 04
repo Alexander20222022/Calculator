@@ -61,7 +61,7 @@ public class Main {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new Exception("The operand should be an integer.");
+            throw new Exception("Число должно быть целое между 1 и 10.");
         }
     }
 
